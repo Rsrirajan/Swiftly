@@ -1,0 +1,13 @@
+{
+    "manifest_version": 3,
+    "name": "Swiftly",
+    "version": "1.0.0",
+    "permissions": ["scripting"],
+    "host_permissions": ["https://app.joinhandshake.com/*"],
+    "content_scripts": [
+        {
+            "matches": ["https://app.joinhandshake.com/*"],
+            "js": ["Script.js"]
+        }
+    ]
+}
