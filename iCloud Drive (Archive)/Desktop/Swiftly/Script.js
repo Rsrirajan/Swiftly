@@ -1,3 +1,6 @@
+//New potential app name: LaxApply
+//Laxly
+
 /*let resumeFile = null;
 let transcriptFile = null;
 
@@ -34,8 +37,8 @@ async function uploads() {
     }
 }*/
 
-/*** TELL USERS TO UPLOAD RESUME, TRANSCRIPT, and COVER LETTER ON HANDSHAKE PRIOR TO USE
- * Later on create a feature to tailor the resume***/
+/*** TELL USERS TO UPLOAD RESUME AND TRANSCRIPT ON HANDSHAKE PRIOR TO USE (cover letter optional)
+ * Later on create a feature to tailor the resume and cover letter to the job***/
 
 function delay(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -67,14 +70,12 @@ async function waitForJobListings() {
     });
 }
 
-// Function to wait until an element is available in the DOM
 function waitForElement(selector) {
     return new Promise((resolve) => {
         const observer = new MutationObserver((mutations, observer) => {
             const element = document.querySelector(selector);
-            
             if (element) {
-                observer.disconnect();  // Stop observing once element is found
+                observer.disconnect();
                 resolve(element);
             }
         });
@@ -86,79 +87,36 @@ function waitForElement(selector) {
 async function selectResumeAndTranscript() {
     await delay(2000);
 
-    const dropDowns = document.querySelectorAll('div.Select-placeholder');
+    const addedItems = document.querySelectorAll('div[class^="style__suggested___"]');
     
-    for (let i = 0; i < dropDowns.length; i++) {
-        const dropDown = dropDowns[i];
+    if (addedItems.length === 0) {
+        console.log("No addedItems found.");
+        return;
+    } else {
+        console.log(`${addedItems.length} addedItems found.`);
+    }
 
-        // Handle Cover Letter Dropdown
-        if (dropDown.innerText.includes("Search your cover letters")) {
-            dropDown.click();
+    let resumeSelected = false;
+    let transcriptSelected = false;
 
-            // Wait for input field with aria-activedescendant
-            const activeInput = await waitForElement('input[aria-label="cover letters"]');
-            
-            if (activeInput) {
-                // Extract dynamic part from aria-activedescendant
-                const activeDescendant = activeInput.getAttribute('aria-activedescendant');
-                
-                // Use template literal to construct selector dynamically
-                const coverLetterOption = await waitForElement(`div[id="${activeDescendant}"]`);
-                
-                if (coverLetterOption) {
-                    coverLetterOption.click();
-                    console.log("Selected cover letter.");
-                } else {
-                    console.log("No cover letter options found.");
-                }
-            }
+    for (let i = 0; i < addedItems.length; i++) {
+        const addedItem = addedItems[i];
+
+        const options = addedItem.querySelectorAll('button[data-hook="pill"]');
+
+        if (!resumeSelected && options[0].innerText.includes("Resume")) {
+            options[0].click();
+            console.log("Selected most recent resume.");
+            resumeSelected = true;
         }
 
-        // Handle Resume Dropdown
-        if (dropDown.innerText.includes("Search your CVs")) {
-            dropDown.click();
-
-            // Wait for input field with aria-activedescendant
-            const activeInput = await waitForElement('input[aria-label="CVs"]');
-            
-            if (activeInput) {
-                // Extract dynamic part from aria-activedescendant
-                const activeDescendant = activeInput.getAttribute('aria-activedescendant');
-                
-                // Use template literal to construct selector dynamically
-                const resumeOption = await waitForElement(`div[id="${activeDescendant}"]`);
-                
-                if (resumeOption) {
-                    resumeOption.click();
-                    console.log("Selected resume.");
-                } else {
-                    console.log("No resume options found.");
-                }
-            }
+        if (!transcriptSelected && options[0].innerText.includes("Transcript")) {
+            options[0].click();
+            console.log("Selected most recent transcript.");
+            transcriptSelected = true;
         }
 
-        // Handle Transcript Dropdown
-        if (dropDown.innerText.includes("Search your transcripts")) {
-            dropDown.click();
-
-            // Wait for input field with aria-activedescendant
-            const activeInput = await waitForElement('input[aria-label="transcripts"]');
-            
-            if (activeInput) {
-                // Extract dynamic part from aria-activedescendant
-                const activeDescendant = activeInput.getAttribute('aria-activedescendant');
-                
-                // Use template literal to construct selector dynamically
-                const transcriptOption = await waitForElement(`div[id="${activeDescendant}"]`);
-                
-                if (transcriptOption) {
-                    transcriptOption.click();
-                    console.log("Selected transcript.");
-                } else {
-                    console.log("No transcript options found.");
-                }
-            }
-        }
+        if (resumeSelected && transcriptSelected) break;
     }
 }
 
@@ -166,8 +124,9 @@ async function submitApplication() {
     await delay(3000); 
 
     const buttons = document.querySelectorAll('button[data-hook="button"]');
-    let spanner = null; // search for the submit app button
+    let spanner = null;
 
+    // Search for the submit application button
     for (let i = 0; i < buttons.length; i++) {
         const button = buttons[i];
         if (button.innerText.includes("Submit Application")) {
@@ -179,10 +138,10 @@ async function submitApplication() {
     await selectResumeAndTranscript(); 
 
     if (spanner) {
-        if (spanner.disabled) { // if you cant submit yet
+        if (spanner.disabled) { 
             const closeOut = document.querySelector('button[aria-label="dismiss"]');
             if (closeOut) {
-                closeOut.click(); 
+                closeOut.click();
                 console.log("Closed the modal.");
             } else {
                 console.log("Close icon not found.");
@@ -267,52 +226,15 @@ async function paginateAndClick() {
     }
 }
 
-//New potential app name: LaxApply
-//Laxly
-
-function populatePopups() {
-    /*const popup = document.createElement('div');
-    const resumeUpload = document.createElement('input');
-    const transcriptUpload = document.createElement('input');
-    const resumeText = document.createElement('p');
-    const transcriptText = document.createElement('p');
-    const textBreak = document.createElement('br');
-    const finalText = document.createElement('p');
-
-    resumeUpload.type = 'file';
-    resumeUpload.accept = '.pdf';
-    resumeUpload.onchange = (event) => handleFileUpload(event, 'resume');
-    transcriptUpload.type = 'file';
-    transcriptUpload.accept = '.pdf';
-    transcriptUpload.onchange = (event) => handleFileUpload(event, 'transcript');
-    resumeText.textContent = 'Upload your resume here:';
-    transcriptText.textContent = 'Upload your transcript here:';
-    finalText.textContent = 'Then click the green button below to swiftly auto apply!';
-
-    popup.appendChild(resumeText);
-    popup.appendChild(resumeUpload);
-    popup.appendChild(transcriptText);
-    popup.appendChild(transcriptUpload);
-    popup.appendChild(textBreak);
-    popup.appendChild(finalText);
-
-    document.body.appendChild(popup);
-
-    popup.style.position = 'fixed';
-    popup.style.top = '100px';
-    popup.style.right = '50px';
-    popup.style.width = '250px';
-    popup.style.height = '250px';
-    popup.style.backgroundColor = '#f2f2f2';
-    popup.style.padding = '20px';*/
-
+// Function to create and display a "Swiftly Apply" button
+function populatePopups() {    
     const runButton = document.createElement('button');
     
     runButton.textContent = "Swiftly Apply";
     runButton.onclick = paginateAndClick;
 
     runButton.style.position = 'fixed';
-    runButton.style.bottom = '400px';
+    runButton.style.bottom = '200px';
     runButton.style.right = '20px';
     runButton.style.padding = '10px 20px';
     runButton.style.backgroundColor = '#4CAF50';
@@ -325,3 +247,4 @@ function populatePopups() {
 } 
 
 populatePopups();
+//figure out how to trigger on load and not just by reloading the page
