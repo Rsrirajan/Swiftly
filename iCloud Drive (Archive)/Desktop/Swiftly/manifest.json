@@ -1,13 +1,18 @@
 {
     "manifest_version": 3,
-    "name": "Swiftly",
+    "name": "LaxApply",
     "version": "1.0.0",
     "permissions": ["scripting"],
-    "host_permissions": ["https://app.joinhandshake.com/*"],
+    "host_permissions": [
+        "https://*.joinhandshake.com/*"
+    ],
     "content_scripts": [
         {
-            "matches": ["https://app.joinhandshake.com/*"],
+            "matches": ["https://*.joinhandshake.com/*"],
             "js": ["Script.js"]
         }
-    ]
+    ],
+    "icons": {
+        "128": "128.png"
+    }
 }
